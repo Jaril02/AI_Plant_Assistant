@@ -1,24 +1,25 @@
-# AI for Farmers: Plant Disease Classifier
+# 🌿 Plant Disease Detection App
 
-This project is a **Plant Disease Detection System** designed to assist farmers by identifying diseases in plants from uploaded images and providing detailed information and preventive measures. It integrates a pre-trained deep learning model with **Google Gemini AI** for enhanced interactivity and additional insights.
+An AI-powered web app to detect plant diseases using image classification and Gemini AI for detailed insights and PDF reporting.
 
 ## Features
+- Upload plant leaf images
+- Classify plant diseases using a trained model
+- Get detailed AI-generated disease information
+- Download a PDF report
+- Ask follow-up questions using Gemini AI
 
-- **Image-based Disease Classification**: Uses a CNN model to predict plant diseases from uploaded images.
-- **Disease Information Retrieval**: Provides details about the disease, including plant name, symptoms, causes, preventive measures, and treatments.
-- **AI-Powered Q&A**: Leverages Google Gemini AI to answer user queries about plant diseases in detail.
-
-## Prerequisites
-
-- Python 3.8+
-- TensorFlow 2.0+
+## Tech Stack
 - Streamlit
-- Google Generative AI Python SDK (`google-generativeai`)
-- `.env` file containing `GOOGLE_API_KEY`
+- TensorFlow
+- Google Gemini API
+- Python
+- PDF Report Generation
+- dotenv
 
-## Setup
+## Setup Instructions
 
-1. **Clone the Repository**:
+1. **Clone the repo**
    ```bash
-   git clone https://github.com/your-repo-name/plant-disease-classifier.git
-   cd plant-disease-classifier
+   git clone https://github.com/Jaril02/AI_Plant_Assistant.git
+   cd AI_Plant_Assistant
