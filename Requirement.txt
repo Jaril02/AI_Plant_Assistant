@@ -1,0 +1,32 @@
+# Core Libraries
+numpy
+pandas
+matplotlib
+scikit-learn
+opencv-python
+Pillow
+
+# Deep Learning
+tensorflow>=2.11.0
+
+# Streamlit App
+streamlit
+streamlit_lottie
+streamlit_option_menu
+
+# PDF Generation
+reportlab
+fpdf
+
+# Image Utils
+imutils
+
+# Dataset Download
+kagglehub
+
+# If using OpenAI/Gemini (for chatbot features)
+openai
+google-generativeai
+
+
+//Make sure you have equal or below python 3.12
