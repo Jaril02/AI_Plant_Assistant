@@ -7,11 +7,11 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from PIL import Image
 from pdf_generator import PDFReport
-
+import time
 
 # Load environment variables and configure Gemini AI
 load_dotenv()
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # Load class names and disease information
 raw_class_indices = json.load(open('class_indices.json'))
@@ -47,49 +47,194 @@ def predict_image_class(model, image_path, class_indices):
 def get_disease_info(predicted_class):
     return disease_info.get(predicted_class, {})
 
-def set_bg_color():
+def set_modern_ui():
     st.markdown(
         """
         <style>
+        /* Modern UI Styling */
         .stApp {
-            background-color: #99faaa; /* Background color */
-            color: #333234; /* Default text color */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
-        /* Headings */
-        h1, h2, h3, h4, h5, h6 {
-            color: #333234;
+        
+        /* Custom CSS for modern look */
+        .main-header {
+            background: linear-gradient(90deg, #2E8B57, #3CB371);
+            padding: 2rem;
+            border-radius: 20px;
+            margin: 1rem 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-align: center;
+            color: white;
         }
-
-        /* Label texts like 'Upload Image', 'Enter your question' */
-        label, .css-1cpxqw2, .css-1n76uvr {
-            color: #333234 !important;
+        
+        .main-header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .main-header p {
+            font-size: 1.2rem;
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 0.5rem 0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #4CAF50;
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            background: rgba(76, 175, 80, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: #45a049;
+            background: rgba(76, 175, 80, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .prediction-card {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 0.5rem 0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        
+        .disease-info {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 0.5rem 0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        
+        .ai-section {
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 0.5rem 0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.2rem;
+            margin: 0.5rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .stButton > button {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
             font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-
-        /* Input text inside textbox */
-        input, textarea {
-            color: #333234 !important;
+        
+        .stButton > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
-
-        /* Optional: Change file uploader button text */
-        .css-1cpxqw2, .css-1n76uvr {
-            color: #333234 !important;
+        
+        .stTextInput > div > div > input {
+            border-radius: 15px;
+            border: 2px solid #e0e0e0;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
         }
-
-        /* Optional: change other form element text */
-        .stTextInput>div>div>input, 
-        .stTextArea textarea, 
-        .stFileUploader>div>div {
-            color: #333234 !important;
+        
+        .stTextInput > div > div > input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        
+        .stFileUploader > div > div {
+            border-radius: 15px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .stFileUploader > div > div:hover {
+            border-color: #4CAF50;
+        }
+        
+        .tab-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 1rem 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+        
+        .loading-animation {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-animation {
+            animation: successPulse 0.6s ease-in-out;
+        }
+        
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: white;
+            background: rgba(0,0,0,0.1);
+            border-radius: 20px;
+            margin-top: 2rem;
         }
         </style>
         """,
         unsafe_allow_html=True
     )
 
-set_bg_color()
-
+set_modern_ui()
 
 # Function to interact with Gemini AI
 def ask_gemini(question):
@@ -118,143 +263,342 @@ def ask_gemini(question):
 
         # General error fallback
         return "An error occurred while generating AI response."
-st.set_page_config(layout="wide", page_title="Plant Disease Detector", page_icon="🌿")
 
+st.set_page_config(
+    layout="wide", 
+    page_title="🌱 Plant Disease AI Assistant", 
+    page_icon="🌱",
+    initial_sidebar_state="expanded"
+)
 
-
-# Streamlit App
-
-
-
-with st.sidebar:
-    st.title("🌱 Plant AI Assistant")
-    st.info("Upload your plant image and get disease insights!")
-
-tab1, tab2, tab3 = st.tabs(["Prediction", "AI Info", "Ask AI"])
-
-with tab1:
-    st.title("🌱 Plant AI Assistant")
-    st.write(f"Prediction: {st.session_state.get('prediction', 'No prediction yet')}")
-
-with tab2:
-    st.write(st.session_state.get('ai_summary', 'AI info not available'))
-
-
-with tab3:
-    user_question = st.text_input("Ask a question")
-    if st.button("Ask"):
-        st.write(ask_gemini(user_question))
-
-
-
-if model is not None:
-    st.title('AI for Farmers: Plant Disease Classifier')
-
-    uploaded_image = st.file_uploader("Upload an image...", type=["jpg", "jpeg", "png"])
-
-    if uploaded_image is not None:
-        image = Image.open(uploaded_image)
-        col1, col2 = st.columns([1,2])
-
-        with col1:
-            resized_img = image.resize((350, 350))
-            st.image(resized_img)
-
-        with col2:
-            if st.button('Classify'):
+# Main App
+def main():
+    # Header
+    st.markdown("""
+        <div class="main-header">
+            <h1>🌱 Plant Disease AI Assistant</h1>
+            <p>Advanced AI-powered plant disease detection and analysis</p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Sidebar
+    with st.sidebar:
+        st.markdown("""
+            <div class="sidebar">
+                <h2>🚀 Features</h2>
+                <p><span class="feature-icon">🔍</span>AI Disease Detection</p>
+                <p><span class="feature-icon">📊</span>Detailed Analysis</p>
+                <p><span class="feature-icon">📄</span>PDF Reports</p>
+                <p><span class="feature-icon">💬</span>AI Chat Support</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Dropdown Examples
+        st.markdown("### 📋 Settings")
+        
+        # Simple dropdown for analysis type
+        analysis_type = st.selectbox(
+            "Analysis Type",
+            ["Quick Scan", "Detailed Analysis", "Expert Mode"],
+            help="Choose the level of analysis detail"
+        )
+        
+        # Multi-select dropdown for features
+        selected_features = st.multiselect(
+            "Enable Features",
+            ["PDF Report", "AI Chat", "Image Enhancement", "Historical Data"],
+            default=["PDF Report", "AI Chat"],
+            help="Select which features to enable"
+        )
+        
+        # Dropdown with custom formatting
+        report_format = st.selectbox(
+            "Report Format",
+            ["PDF", "HTML", "Text"],
+            format_func=lambda x: f"📄 {x}",
+            help="Choose your preferred report format"
+        )
+        
+        # Dropdown with index
+        confidence_threshold = st.selectbox(
+            "Confidence Threshold",
+            [0.5, 0.7, 0.8, 0.9, 0.95],
+            index=2,  # Default to 0.8
+            help="Minimum confidence level for disease detection"
+        )
+        
+        st.markdown("---")
+        
+        # How to Use Dropdown
+        with st.expander("📱 How to Use", expanded=False):
+            st.markdown("""
+                **Step-by-Step Instructions:**
+                
+                **1. 📸 Upload Plant Image**
+                • Take a clear photo of the affected plant area
+                • Ensure good lighting and focus
+                • Upload JPG, JPEG, or PNG files only
+                
+                **2. 🔍 Get Instant Diagnosis**
+                • AI will analyze your image automatically
+                • Results show disease type and confidence level
+                • Get treatment recommendations instantly
+                
+                **3. 📄 Download Detailed Report**
+                • Generate comprehensive PDF reports
+                • Includes disease details, treatment plans
+                • Save for future reference
+                
+                **4. 💬 Ask AI for More Info**
+                • Chat with AI about plant care
+                • Get personalized advice
+                • Ask follow-up questions
+                
+                **💡 Tips for Best Results:**
+                • Use high-quality images
+                • Include both healthy and affected areas
+                • Ensure proper lighting conditions
+                • Upload images of leaves, stems, or fruits
+            """)
+    
+    # Main Content
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        # Main Upload Section
+        st.markdown("""
+            <div class="card">
+                <h2>📸 Upload Plant Image</h2>
+                <p>Get instant AI-powered disease diagnosis for your plants</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Plant Type Selection Dropdown
+        plant_category = st.selectbox(
+            "🌿 Plant Category",
+            ["All Plants", "Vegetables", "Fruits", "Grains", "Ornamentals", "Herbs"],
+            help="Select the category of your plant for better analysis"
+        )
+        
+        # Disease Focus Dropdown
+        if plant_category != "All Plants":
+            disease_focus = st.multiselect(
+                "🎯 Focus Areas",
+                ["Leaf Diseases", "Root Diseases", "Stem Diseases", "Fruit Diseases", "Fungal Infections", "Bacterial Infections"],
+                default=["Leaf Diseases"],
+                help="Select specific disease types to focus on"
+            )
+        
+        uploaded_image = st.file_uploader(
+            "Choose an image file",
+            type=["jpg", "jpeg", "png"],
+            help="Upload a clear image of the plant leaf or affected area"
+        )
+        
+        if uploaded_image is not None:
+            # Image Display
+            st.markdown("""
+                <div class="card">
+                    <h3>🖼️ Uploaded Image</h3>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            image = Image.open(uploaded_image)
+            col_img1, col_img2, col_img3 = st.columns([1, 2, 1])
+            
+            with col_img2:
+                st.image(image, caption="Your Plant Image", use_container_width=True)
+            
+            # Classification Button
+            if st.button('🔍 Analyze Plant Disease', use_container_width=True):
+                if model is not None:
+                    with st.spinner('🤖 AI is analyzing your plant...'):
+                        prediction = predict_image_class(model, uploaded_image, class_indices)
+                        st.session_state.prediction = prediction
+                        st.session_state.disease_data = get_disease_info(prediction)
+                        st.session_state.image = image
+                        time.sleep(1)  # Simulate processing
+                        
+                        # Show selected options
+                        st.info(f"🔍 Analysis Type: {analysis_type}")
+                        st.info(f"🌿 Plant Category: {plant_category}")
+                        if plant_category != "All Plants" and 'disease_focus' in locals():
+                            st.info(f"🎯 Focus Areas: {', '.join(disease_focus)}")
+                        st.info(f"📊 Confidence Threshold: {confidence_threshold}")
+                        
+            if "prediction" in st.session_state:
                 prediction = predict_image_class(model, uploaded_image, class_indices)
-                st.success(f'Prediction: {prediction}')
-                print(f"Available keys: {list(disease_info.keys())[:5]}")
                 st.session_state.prediction = prediction
                 disease_data = get_disease_info(prediction)
                 st.session_state.disease_data = disease_data
-
-                if disease_data:
-                    st.write(f"**Plant Name:** {disease_data.get('plant_name')}")
-                    st.write(f"**Symptoms:** {disease_data.get('symptoms')}")
-                    st.write(f"**Causes:** {disease_data.get('causes')}")
-                    st.write(f"**Preventive Measures:** {disease_data.get('preventive_measures')}")
-                    st.write(f"**Treatment:** {disease_data.get('treatment')}")
-                else:
-                    st.warning("No data found in local JSON. Using Gemini AI to generate information...")
-                    ai_summary = ask_gemini(f"""
-                        Give detailed info about the plant disease: {prediction}.
-                        Include:
-                        - Plant Name
-                        - Symptoms
-                        - Causes
-                        - Preventive Measures
-                        - Treatment
-                        Format it clearly.
-                    """)
-                    st.subheader("AI-Generated Disease Info")
-                    st.write(ai_summary)
-
-                     # Automatically query Gemini AI for more details about the disease
-                    ai_initial_response = ask_gemini(f"Tell me more about {prediction} in detail")
-                    st.subheader('AI Generated Detailed Information:')
-                    st.write(ai_initial_response)
-
-                    # Automatically ask AI about prevention techniques
-                    ai_prevention_response = ask_gemini(f"What are the detailed prevention techniques for {prediction}?")
-                    st.subheader('AI Generated Prevention Techniques:')
-                    st.write(ai_prevention_response)
-        if st.button('Download PDF Report'):
-            if uploaded_image is not None and 'prediction' in st.session_state:
-                prediction = st.session_state.prediction
-                disease_data = st.session_state.disease_data
-                image_path = "temp_uploaded_image.png"
-                image.save(image_path)
-
-                # Fetch AI info from session state or regenerate
-                ai_summary = ask_gemini(f"Give detailed info about the plant disease: {prediction}.")
-                ai_initial_response = ask_gemini(f"Tell me more about {prediction} in detail")
-                ai_prevention_response = ask_gemini(f"What are the detailed prevention techniques for {prediction}?")
-
-                # Prepare content
-                disease_data_for_pdf = {
-                    "Plant Name": disease_data.get("plant_name", prediction),
-                    "Symptoms": disease_data.get("symptoms", "Not found"),
-                    "Causes": disease_data.get("causes", "Not found"),
-                    "Preventive Measures": disease_data.get("preventive_measures", "Not found"),
-                    "Treatment": disease_data.get("treatment", "Not found"),
-                }
-
-                # Generate PDF
-                pdf = PDFReport()
-                pdf.add_page()
-                pdf.add_image_and_text(
-                    image_path,
-                    disease_data_for_pdf,
-                    ai_summary=ai_summary,
-                    ai_detailed=ai_initial_response,
-                    ai_prevention=ai_prevention_response
-                )
-                pdf_path = pdf.export_pdf()
-
-                # Download button
-                with open(pdf_path, "rb") as file:
-                    st.download_button(
-                        label="📄 Download PDF Report",
-                        data=file,
-                        file_name="plant_disease_report.pdf",
-                        mime="application/pdf"
-                    )        
                 
+                # Success animation
+                st.success(f'✅ Analysis Complete!')
+                
+                # Prediction Result
+                st.markdown(f"""
+                    <div class="prediction-card">
+                        <h3>🎯 Disease Detected</h3>
+                        <h2>{prediction}</h2>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                # Disease Information
+                if disease_data:
+                    st.markdown("""
+                        <div class="disease-info">
+                            <h3>📋 Disease Information</h3>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+                    info_col1, info_col2 = st.columns(2)
+                    with info_col1:
+                        st.info(f"**🌿 Plant:** {disease_data.get('plant_name', 'N/A')}")
+                        st.info(f"**⚠️ Symptoms:** {disease_data.get('symptoms', 'N/A')}")
+                        st.info(f"**🔍 Causes:** {disease_data.get('causes', 'N/A')}")
+                    
+                    with info_col2:
+                        st.info(f"**🛡️ Prevention:** {disease_data.get('preventive_measures', 'N/A')}")
+                        st.info(f"**💊 Treatment:** {disease_data.get('treatment', 'N/A')}")
+                else:
+                    st.warning("📚 Local data not found. Generating AI-powered analysis...")
+                    
+                    # AI Analysis
+                    with st.spinner('🤖 AI is generating detailed information...'):
+                        ai_summary = ask_gemini(f"""
+                            Give detailed info about the plant disease: {prediction}.
+                            Include:
+                            - Plant Name
+                            - Symptoms
+                            - Causes
+                            - Preventive Measures
+                            - Treatment
+                            Format it clearly.
+                        """)
+                        
+                        st.markdown("""
+                            <div class="ai-section">
+                                <h3>🤖 AI-Generated Analysis</h3>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        st.write(ai_summary)
+                        
+                        # Additional AI insights
+                        ai_detailed = ask_gemini(f"Tell me more about {prediction} in detail")
+                        ai_prevention = ask_gemini(f"What are the detailed prevention techniques for {prediction}?")
+                        
+                        st.markdown("""
+                            <div class="ai-section">
+                                <h3>🔬 Detailed Analysis</h3>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        st.write(ai_detailed)
+                        
+                        st.markdown("""
+                            <div class="ai-section">
+                                <h3>🛡️ Prevention Guide</h3>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        st.write(ai_prevention)
+
+                        # 📄 Generate PDF Button
+                        if st.button("📄 Generate PDF Report", use_container_width=True):
+                            with st.spinner("Generating PDF..."):
+                                try:
+                                    # Save uploaded image
+                                    safe_img = image.convert("RGB")
+                                    image_path = "temp_uploaded_image.jpg"
+                                    safe_img.save(image_path, format="JPEG")
+
+                                    # Prepare disease data
+                                    disease_data_for_pdf = {
+                                        "Plant Name": st.session_state.disease_data.get("plant_name", st.session_state.prediction),
+                                        "Symptoms": st.session_state.disease_data.get("symptoms", "Not found"),
+                                        "Causes": st.session_state.disease_data.get("causes", "Not found"),
+                                        "Preventive Measures": st.session_state.disease_data.get("preventive_measures", "Not found"),
+                                        "Treatment": st.session_state.disease_data.get("treatment", "Not found"),
+                                    }
+
+                                    ai_summary    = st.session_state.get("ai_summary", "")
+                                    ai_detailed   = st.session_state.get("ai_detailed", "")
+                                    ai_prevention = st.session_state.get("ai_prevention", "")
+
+                                    # Generate PDF
+                                    pdf = PDFReport(title="Plant Disease Report")
+                                    pdf.add_page()
+                                    pdf.add_image_and_text(
+                                        image_path,
+                                        disease_data_for_pdf,
+                                        ai_summary=ai_summary,
+                                        ai_detailed=ai_detailed,
+                                        ai_prevention=ai_prevention
+                                    )
+                                    pdf_path = pdf.export_pdf("plant_disease_report.pdf")
+
+                                    # Store PDF bytes in session state ✅
+                                    with open(pdf_path, "rb") as f:
+                                        st.session_state["pdf_bytes"] = f.read()
+
+                                        st.success("✅ PDF report generated successfully!")
+
+                                except Exception as e:
+                                    st.error(f"❌ PDF generation failed: {e}")
+
+                        # 📥 Persistent download button ✅
+                        if "pdf_bytes" in st.session_state:
+                            st.download_button(
+                                label="📥 Download PDF Report",
+                                data=st.session_state["pdf_bytes"],
+                                file_name="plant_disease_report.pdf",
+                                mime="application/pdf",
+                                use_container_width=True
+                            )
+
+
 
     
-   
+    with col2:
+        # Quick Actions
+        st.markdown("""
+            <div class="card">
+                <h3>⚡ Quick Actions</h3>
+                <p>Get instant help and information</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # AI Chat Section
+        st.markdown("""
+            <div class="ai-section">
+                <h3>💬 Ask AI Assistant</h3>
+                <p>Get instant answers about plant care</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        user_question = st.text_input(
+            "Ask about plants, diseases, or care tips:",
+            placeholder="e.g., How to prevent tomato blight?"
+        )
+        
+        if st.button('🤖 Ask AI', use_container_width=True):
+            if user_question:
+                with st.spinner('🤖 AI is thinking...'):
+                    ai_answer = ask_gemini(user_question)
+                    st.markdown("""
+                        <div class="card">
+                            <h4>🤖 AI Response:</h4>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    st.write(ai_answer)
+            else:
+                st.warning("⚠️ Please enter a question first.")
+    
+    # Footer
+    st.markdown("""
+        <div class="footer">    
+            <p>🌱 Built with ❤️ using Streamlit & Google Gemini AI</p>
+            <p>© 2025 Plant Disease AI Assistant | Empowering Farmers with AI</p>
+        </div>
+    """, unsafe_allow_html=True)
 
-    # Separate section for further Q&A with Gemini AI
-    st.subheader('Ask AI more questions about the disease')
-    user_question = st.text_input('Enter your question:')
-    if st.button('Ask AI'):
-        if user_question:
-            ai_answer = ask_gemini(user_question)
-            st.write(f"**AI Answer (Gemini):** {ai_answer}")
-        else:
-            st.write("Please enter a question.")
-st.markdown("""
-    <hr style="border:1px solid #ccc"/>
-    <p style='text-align: center;'>© 2025 Plant Disease AI App | Built with ❤️ using Streamlit & Gemini</p>
-""", unsafe_allow_html=True)
+if __name__ == "__main__":
+    main()
