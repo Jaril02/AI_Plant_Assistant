@@ -22,6 +22,7 @@ class PDFReport:
             "⚠️": "[warn]",
             "✅": "[ok]",
         }
+        
         for k, v in replacements.items():
             s = s.replace(k, v)
         return s.encode("latin-1", "replace").decode("latin-1")
@@ -32,7 +33,7 @@ class PDFReport:
         self.pdf.cell(0, 10, self._safe(self.title), ln=True, align="C")
         self.pdf.ln(10)
 
-    def add_image_and_text(self, image_path, disease_data, ai_summary="", ai_detailed="", ai_prevention=""):
+    def add_image_and_text(self, image_path, disease_data,weather_info="", ai_summary="", ai_detailed="", ai_prevention=""):
         # Add image
         if image_path and os.path.exists(image_path):
             try:
@@ -60,10 +61,17 @@ class PDFReport:
             self.pdf.multi_cell(0, 8, self._safe(body))
             self.pdf.ln(3)
 
+        add_section("Weather Information", weather_info)
         add_section("AI Summary", ai_summary)
         add_section("Detailed Analysis", ai_detailed)
         add_section("Prevention Guide", ai_prevention)
 
-    def export_pdf(self, filename="plant_disease_report.pdf"):
+    
+    def export_pdf(self, filename="reports/plant_disease_report.pdf"):
+        # Ensure the directory exists
+        directory = os.path.dirname(filename)
+        if not os.path.exists(directory):
+            os.makedirs(directory)  
+
         self.pdf.output(filename)
         return filename

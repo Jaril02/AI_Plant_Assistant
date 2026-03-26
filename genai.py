@@ -5,18 +5,27 @@ import tensorflow as tf
 import streamlit as st
 import google.generativeai as genai
 from dotenv import load_dotenv
+from weather.weather import get_weather, watering_advice
 from PIL import Image
-from pdf_generator import PDFReport
+from app.pdf_generator import PDFReport
 import time
+from databases.database import init_db, add_user, add_schedule, get_schedules
+from datetime import datetime
+from weather.notify import send_sms
+
+
 
 # Load environment variables and configure Gemini AI
-load_dotenv()
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+env_path = os.path.join(os.path.dirname(__file__), ".env")
+load_dotenv(env_path)
+api_key=os.getenv("GOOGLE_API_KEY")
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
 
 # Load class names and disease information
-raw_class_indices = json.load(open('class_indices.json'))
+raw_class_indices = json.load(open('scripts/class_indices.json'))
 class_indices = {str(v): k for k, v in raw_class_indices.items()} 
-disease_info = json.load(open('plant_disease_info.json'))
+disease_info = json.load(open('scripts/plant_disease_info.json'))
 
 # Load the pre-trained model with error handling
 try:
@@ -91,6 +100,32 @@ def set_modern_ui():
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
+
+        .ai-card {
+            background: #adadff; /* very light bluish background */
+            border: 1px solid #e0e0f0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease;
+        }
+
+        .ai-card:hover {
+            transform: scale(1.02);
+        }
+
+        
+        .ai-light-card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 0.5rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            line-height: 1.6;
+        }
+
         .upload-area {
             border: 3px dashed #4CAF50;
             border-radius: 20px;
@@ -240,7 +275,7 @@ set_modern_ui()
 def ask_gemini(question):
     try:
         model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
+            model_name="gemini-flash-latest",
             generation_config={
                 "temperature": 1,
                 "top_p": 0.95,
@@ -266,17 +301,25 @@ def ask_gemini(question):
 
 st.set_page_config(
     layout="wide", 
-    page_title="🌱 Plant Disease AI Assistant", 
+    page_title="🌱 AI Plant Assistant", 
     page_icon="🌱",
     initial_sidebar_state="expanded"
 )
+
+phone_number = st.text_input(
+    "Enter your phone number (with country code, e.g., +91XXXXXXXXXX):",
+    key="user_phone"
+)
+
+
+
 
 # Main App
 def main():
     # Header
     st.markdown("""
         <div class="main-header">
-            <h1>🌱 Plant Disease AI Assistant</h1>
+            <h1>🌱 AI Plant Assistant</h1>
             <p>Advanced AI-powered plant disease detection and analysis</p>
         </div>
     """, unsafe_allow_html=True)
@@ -287,21 +330,38 @@ def main():
             <div class="sidebar">
                 <h2>🚀 Features</h2>
                 <p><span class="feature-icon">🔍</span>AI Disease Detection</p>
-                <p><span class="feature-icon">📊</span>Detailed Analysis</p>
+                <p><span class="feature-icon">🌦️</span>Weather & Watering Advice</p>
                 <p><span class="feature-icon">📄</span>PDF Reports</p>
                 <p><span class="feature-icon">💬</span>AI Chat Support</p>
             </div>
         """, unsafe_allow_html=True)
+        city = st.text_input("Enter your city", value="Delhi", key="weather_city")
+
+        if st.button("Check Weather and Notify",key="check_weather_btn"):
+            weather = get_weather(city)
+            
+            if "error" in weather:
+                st.error(weather["error"])
+            else:
+                st.info(f"🌡️ Temp: {weather['temp']}°C | 💧 Humidity: {weather['humidity']}% | {weather['description'].capitalize()}")
+                advice = watering_advice(weather)
+                st.success(advice)
+                
+                # Trigger SMS if plant needs watering
+                if "Water" in advice or "No rainfall" in advice:
+                    if phone_number:
+                        sms_sent = send_sms(
+                            phone_number,
+                            f"🌱 Plant Watering Alert!\nWeather: {weather['description']}, Temp: {weather['temp']}°C, Humidity: {weather['humidity']}%\nAdvice: {advice}"
+                        )
+                        if sms_sent:
+                            st.success("✅ Watering SMS sent successfully!")
+                    else:
+                        st.warning("⚠️ Please enter your phone number to receive SMS alerts.")
+
+
         
-        # Dropdown Examples
         st.markdown("### 📋 Settings")
-        
-        # Simple dropdown for analysis type
-        analysis_type = st.selectbox(
-            "Analysis Type",
-            ["Quick Scan", "Detailed Analysis", "Expert Mode"],
-            help="Choose the level of analysis detail"
-        )
         
         # Multi-select dropdown for features
         selected_features = st.multiselect(
@@ -410,7 +470,7 @@ def main():
                 st.image(image, caption="Your Plant Image", use_container_width=True)
             
             # Classification Button
-            if st.button('🔍 Analyze Plant Disease', use_container_width=True):
+            if st.button('🔍 Analyze Plant Disease', use_container_width=True,key="analyze_btn"):
                 if model is not None:
                     with st.spinner('🤖 AI is analyzing your plant...'):
                         prediction = predict_image_class(model, uploaded_image, class_indices)
@@ -420,21 +480,46 @@ def main():
                         time.sleep(1)  # Simulate processing
                         
                         # Show selected options
-                        st.info(f"🔍 Analysis Type: {analysis_type}")
                         st.info(f"🌿 Plant Category: {plant_category}")
                         if plant_category != "All Plants" and 'disease_focus' in locals():
                             st.info(f"🎯 Focus Areas: {', '.join(disease_focus)}")
                         st.info(f"📊 Confidence Threshold: {confidence_threshold}")
-                        
+
+
+            st.title("🌱 Plant Care Scheduler")
+            with st.form("user_form"):
+                name = st.text_input("Name")
+                phone = st.text_input("Phone (+91...)")
+                if st.form_submit_button("Add User"):
+                    init_db()
+                    add_user(name, phone)
+                    st.success("✅ User added!")
+
+            with st.form("task_form"):
+                user_id = st.number_input("User ID", min_value=1)
+                task = st.text_input("Task (e.g., Watering)")
+                task_time = st.text_input("Time (HH:MM)", value="07:00")
+                frequency = st.selectbox("Frequency", ["daily", "weekly", "monthly"])
+                day = st.text_input("Day (if weekly/monthly)")
+                if st.form_submit_button("Add Task"):
+                    init_db()
+                    add_schedule(user_id, task, task_time, frequency, day)
+
+                    st.success("✅ Task scheduled successfully!")
+
+                    st.success("Task scheduled!")
+
+            st.write("📋 Current Schedules:", get_schedules())
+
+
             if "prediction" in st.session_state:
                 prediction = predict_image_class(model, uploaded_image, class_indices)
                 st.session_state.prediction = prediction
                 disease_data = get_disease_info(prediction)
                 st.session_state.disease_data = disease_data
                 
-                # Success animation
                 st.success(f'✅ Analysis Complete!')
-                
+
                 # Prediction Result
                 st.markdown(f"""
                     <div class="prediction-card">
@@ -477,32 +562,44 @@ def main():
                         """)
                         
                         st.markdown("""
-                            <div class="ai-section">
+                            <div class="ai-card">
                                 <h3>🤖 AI-Generated Analysis</h3>
                             </div>
                         """, unsafe_allow_html=True)
-                        st.write(ai_summary)
+                        st.markdown(f"""
+                            <div class="ai-light-card">
+                                {ai_summary}
+                            </div>
+                        """, unsafe_allow_html=True)
                         
                         # Additional AI insights
                         ai_detailed = ask_gemini(f"Tell me more about {prediction} in detail")
                         ai_prevention = ask_gemini(f"What are the detailed prevention techniques for {prediction}?")
                         
                         st.markdown("""
-                            <div class="ai-section">
+                            <div class="ai-card">
                                 <h3>🔬 Detailed Analysis</h3>
                             </div>
                         """, unsafe_allow_html=True)
-                        st.write(ai_detailed)
+                        st.markdown(f"""
+                            <div class="ai-light-card">
+                                {ai_detailed}
+                            </div>
+                        """, unsafe_allow_html=True)
                         
                         st.markdown("""
-                            <div class="ai-section">
+                            <div class="ai-card">
                                 <h3>🛡️ Prevention Guide</h3>
                             </div>
                         """, unsafe_allow_html=True)
-                        st.write(ai_prevention)
+                        st.markdown(f"""
+                            <div class="ai-light-card">
+                                {ai_prevention}
+                            </div>
+                        """, unsafe_allow_html=True)
 
                         # 📄 Generate PDF Button
-                        if st.button("📄 Generate PDF Report", use_container_width=True):
+                        if st.button("📄 Generate PDF Report", use_container_width=True,key="pdf_btn"):
                             with st.spinner("Generating PDF..."):
                                 try:
                                     # Save uploaded image
@@ -519,21 +616,32 @@ def main():
                                         "Treatment": st.session_state.disease_data.get("treatment", "Not found"),
                                     }
 
-                                    ai_summary    = st.session_state.get("ai_summary", "")
-                                    ai_detailed   = st.session_state.get("ai_detailed", "")
-                                    ai_prevention = st.session_state.get("ai_prevention", "")
+                                    st.session_state["ai_summary"] = ai_summary
+                                    st.session_state["ai_detailed"] = ai_detailed
+                                    st.session_state["ai_prevention"] = ai_prevention
+
+
+                                    # Weather & watering advice
+                                    if "weather" in st.session_state:
+                                        weather_data = st.session_state["weather"]
+                                        weather_text = watering_advice(weather_data)
+                                    else:
+                                        weather_text = "Weather data unavailable."
+
 
                                     # Generate PDF
                                     pdf = PDFReport(title="Plant Disease Report")
                                     pdf.add_page()
+                    
                                     pdf.add_image_and_text(
                                         image_path,
                                         disease_data_for_pdf,
+                                        weather_info=weather_text,
                                         ai_summary=ai_summary,
                                         ai_detailed=ai_detailed,
-                                        ai_prevention=ai_prevention
+                                        ai_prevention=ai_prevention,
                                     )
-                                    pdf_path = pdf.export_pdf("plant_disease_report.pdf")
+                                    pdf_path = pdf.export_pdf("reports/plant_disease_report.pdf")
 
                                     # Store PDF bytes in session state ✅
                                     with open(pdf_path, "rb") as f:
@@ -551,7 +659,8 @@ def main():
                                 data=st.session_state["pdf_bytes"],
                                 file_name="plant_disease_report.pdf",
                                 mime="application/pdf",
-                                use_container_width=True
+                                use_container_width=True,
+                                key="pdf_download_btn"
                             )
 
 
@@ -576,10 +685,11 @@ def main():
         
         user_question = st.text_input(
             "Ask about plants, diseases, or care tips:",
+            key="chat_input",
             placeholder="e.g., How to prevent tomato blight?"
         )
         
-        if st.button('🤖 Ask AI', use_container_width=True):
+        if st.button('🤖 Ask AI', use_container_width=True,key="ask_ai_btn"):
             if user_question:
                 with st.spinner('🤖 AI is thinking...'):
                     ai_answer = ask_gemini(user_question)

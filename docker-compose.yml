@@ -1,0 +1,31 @@
+version: "3.11"
+
+services:
+
+  app:
+    build: .
+    container_name: Plant_Ai
+    ports:
+      - "8501:8501"
+    command: python -m streamlit run genai.py --server.port 8501 --server.address 0.0.0.0
+    volumes: 
+      - .:/app
+    restart: always
+    environment:
+      - TZ=Asia/Kolkata
+      - PYTHONPATH=/app
+      
+
+
+  scheduler:
+    build: .
+    container_name: schedler
+    command: python -m alram
+    volumes:
+      - .:/app
+    restart: always
+    environment:
+    - TZ=Asia/Kolkata
+    - PYTHONPATH=/app
+
+      

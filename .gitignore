@@ -1,14 +1,61 @@
-.env
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+# Environment / virtualenv
+env/
+venv/
+ENV/
+.venv/
+
+# Jupyter / notebooks
+.ipynb_checkpoints/
+
+# System files
 .DS_Store
-*.h5
+Thumbs.db
+
+# Dataset & training files
+dataset/
+models/train_model.py
+scripts/class_indices.json
+trained_model/*.h5
+temp_uploaded_image.png
+reports/
+databases/plant_schedule.py
+
+# Reports & outputs
+reports/
+plant_disease_report.pdf
+
+# Logs
+*.log
+
+# Docker
+*.tar
+*.env
+
+# Images / media
 *.png
 *.jpg
 *.jpeg
-temp_uploaded_image.png
-train_model.py
-env/
-dataset/
-class_indices.json
-split_dataset.py
+
+# Others
+__pycache__/
+
+# ----------------------
+# Documents (BLOCK THESE)
+# ----------------------
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
