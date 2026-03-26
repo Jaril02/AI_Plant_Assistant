@@ -71,6 +71,7 @@ python weather/scheduler.py
 docker-compose up --build
 🌐 App: http://localhost:8501
 ⏰ Scheduler runs automatically
+```
 📸 App Screenshots
 📤 Upload & Detection
 <p align="center"> <img src="assets/leaf_upload.png" width="600"/> </p>
