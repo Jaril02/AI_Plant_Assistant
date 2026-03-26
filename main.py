@@ -16,7 +16,6 @@ with open(disease_info_path, 'r') as f:
     disease_info = json.load(f)
 
 
-
 def load_and_preprocess_image(image_path, target_size=(224, 224)):
     img = Image.open(image_path)    
     img = img.resize(target_size)    
