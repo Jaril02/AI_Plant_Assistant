@@ -87,13 +87,12 @@ Contributing
 Open issues or submit pull requests.
 Ensure new dependencies are added to requirements.txt and tested with Docker.
 
-## Images ScreenShot
-![Home Page](asserts/home.png)
-![Leaf Upload ](asserts/leaf_upload.png)
-![Ai Assistance](asserts/Ai_assistant.png)
-![Weather](asserts/weather.png)
-![Confidence](asserts/confidence.png)
-![Scheduler](asserts/scheduler.png)
-![Analyze Result](asserts/output1.png)
-![Result 2](asserts/output2.png)
-![PDF Generator](asserts/pdf_genrator.png)
+![Home Page](assets/home.png)
+![Leaf Upload](assets/leaf_upload.png)
+![AI Assistant](assets/ai_assistant.png)
+![Weather](assets/weather.png)
+![Confidence](assets/confidence.png)
+![Scheduler](assets/scheduler.png)
+![Analyze Result](assets/output1.png)
+![Result 2](assets/output2.png)
+![PDF Generator](assets/pdf_generator.png)
