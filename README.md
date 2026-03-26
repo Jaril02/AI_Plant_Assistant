@@ -86,7 +86,7 @@ docker-compose up --build
 🔍 Disease Detection Results
 <p align="center"> <img src="assets/output1.png" width="600"/> <img src="assets/output2.png" width="600"/> </p>
 📄 PDF Report Generation
-<p align="center"> <img src="assets/pdf_generator.png" /> </p>
+<p align="center"> <img src="assets/pdf_genrator.png" /> </p>
 📝 Notes
 Scheduler checks DB every minute and triggers reminders
 PDF reports are stored in reports/
