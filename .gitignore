@@ -42,7 +42,6 @@ plant_disease_report.pdf
 *.env
 
 # Images / media
-*.png
 *.jpg
 *.jpeg
 
