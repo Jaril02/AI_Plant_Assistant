@@ -73,9 +73,11 @@ docker-compose up --build
 ⏰ Scheduler runs automatically
 📸 App Screenshots
 📤 Upload & Detection
+```
+# 🌿 AI Plant Assistant
 <p align="center"> <img src="assets/leaf_upload.png" width="600"/> </p>
 🤖 AI Assistant
-<p align="center"> <img src="assets/ai_assistant.png" width="600"/> </p>
+<p align="center"> <img src="assets/Ai_assistant.png" width="600"/> </p>
 🌦️ Weather & Advice
 <p align="center"> <img src="assets/weather.png" width="600"/> </p>
 📊 Prediction Confidence

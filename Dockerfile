@@ -3,7 +3,7 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECDE 1
 ENV PYTHONUNBUFFERED 1
 
-WORKDIR /app
+WORKDIR /workspace
 
 COPY requirements.txt .
 RUN pip install --upgrade pip
