@@ -52,7 +52,7 @@ Ai_plant/
 ## ⚙️ Setup Instructions
 
 ### 1️⃣ Clone the repository
-```bash
+
 git clone https://github.com/Jaril02/AI_Plant_Assistant.git
 cd AI_Plant_Assistant
 2️⃣ Create .env file
