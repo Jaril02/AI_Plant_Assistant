@@ -71,6 +71,7 @@ python weather/scheduler.py
 docker-compose up --build
 🌐 App: http://localhost:8501
 ⏰ Scheduler runs automatically
+```
 📸 App Screenshots
 📤 Upload & Detection
 ```
@@ -79,15 +80,15 @@ docker-compose up --build
 🤖 AI Assistant
 <p align="center"> <img src="assets/Ai_assistant.png" width="600"/> </p>
 🌦️ Weather & Advice
-<p align="center"> <img src="assets/weather.png" width="600"/> </p>
+<p align="center"> <img src="assets/weather.png" /> </p>
 📊 Prediction Confidence
-<p align="center"> <img src="assets/confidence.png" width="600"/> </p>
+<p align="center"> <img src="assets/confidence.png" /> </p>
 ⏰ Scheduler System
 <p align="center"> <img src="assets/scheduler.png" width="600"/> </p>
 🔍 Disease Detection Results
 <p align="center"> <img src="assets/output1.png" width="600"/> <img src="assets/output2.png" width="600"/> </p>
 📄 PDF Report Generation
-<p align="center"> <img src="assets/pdf_generator.png" width="600"/> </p>
+<p align="center"> <img src="assets/pdf_genrator.png" /> </p>
 📝 Notes
 Scheduler checks DB every minute and triggers reminders
 PDF reports are stored in reports/
